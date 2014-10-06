@@ -42,11 +42,10 @@
                              :starboard-missile-launcher]}))
 
 (defn repair-ship [v]
-  ;; TODO: do something besides just sleep here
-  ;; The example will to better if you have to use some cpu to get this done
-  (<!! (async/timeout (rand-int 10000)))
-  (-> (merge v {:status :ready-to-dock})
-      (dissoc :to-be-repaired)))
+  (let [time (reduce + (range (rand-int 100000000)))]
+    (<!! (async/timeout (rand-int 10000)))
+    (-> (merge v {:status :ready-to-dock, :time-to-repair time})
+        (dissoc :to-be-repaired))))
 
 (defn save-status-in-db [v]
   (<!! (async/timeout (rand-int 50)))
@@ -67,16 +66,18 @@
     (recur)))
 
 (defn ex-4 []
-  (dotimes [_ 40]
-    (async/thread
-      (loop []
-        (let [v (read-from-queue)]
-          (-> (assess-damage v)
-              (repair-ship)
-              (save-status-in-db)
-              (dock-ship)
-              (clojure.pprint/pprint)))
-        (recur)))))
+  (dotimes [_ 60]
+    (.start
+      (proxy [Thread] []
+        (run []
+          (loop []
+            (let [v (read-from-queue)]
+              (-> (assess-damage v)
+                  (repair-ship)
+                  (save-status-in-db)
+                  (dock-ship)
+                  (clojure.pprint/pprint)))
+            (recur)))))))
 
 (defn ex-5 []
   (let [in (chan 5)
