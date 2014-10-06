@@ -93,3 +93,16 @@
     (loop []
       (when (>!! in (read-from-queue))
         (recur)))))
+
+(defn ex-6 []
+  (let [xform (comp
+                (map inc)
+                (filter even?))
+        c (chan 10 xform)]
+    (println (sequence xform [1 2 3 4 5]))
+
+    (<!! (async/onto-chan c [1 2 3 4 5]))
+    (loop []
+      (when-some [v (<!! c)]
+        (println v)
+        (recur)))))
