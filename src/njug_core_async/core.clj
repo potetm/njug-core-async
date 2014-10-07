@@ -51,11 +51,14 @@
   (<!! (async/timeout (rand-int 50)))
   v)
 
+(def main-thruway-counter (atom 0))
+
 (defn dock-ship [v]
+  (swap! main-thruway-counter inc)
   (<!! (async/timeout (rand-int 500)))
   v)
 
-(defn ex-3 []
+(defn hangar-deck-process-1 []
   (loop []
     (let [v (read-from-queue)]
       (-> (assess-damage v)
@@ -65,7 +68,7 @@
           (clojure.pprint/pprint)))
     (recur)))
 
-(defn ex-4 []
+(defn hangar-deck-process-2 []
   (dotimes [_ 60]
     (.start
       (proxy [Thread] []
@@ -79,7 +82,7 @@
                   (clojure.pprint/pprint)))
             (recur)))))))
 
-(defn ex-5 []
+(defn hangar-deck-process-3 []
   (let [in (chan 5)
         err (chan 1)]
     (pipeline/pipeline
@@ -94,7 +97,7 @@
       (when (>!! in (read-from-queue))
         (recur)))))
 
-(defn ex-6 []
+(defn BONUS!-transducers []
   (let [xform (comp
                 (map inc)
                 (filter even?))
